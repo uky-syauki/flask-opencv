@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rekam Video</title>
+</head>
+<body>
+    <video id="video" autoplay></video>
+    <button id="startRecord">Mulai Rekam</button>
+    <button id="stopRecord" disabled>Stop Rekam</button>
+
+    <script>
+        const video = document.getElementById('video');
+        const startRecordButton = document.getElementById('startRecord');
+        const stopRecordButton = document.getElementById('stopRecord');
+        let mediaRecorder;
+        let chunks = [];
+
+        startRecordButton.addEventListener('click', () => {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    mediaRecorder = new MediaRecorder(stream);
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            chunks.push(event.data);
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'video/webm' });
+                        const formData = new FormData();
+                        formData.append('video', blob);
+
+                        fetch('/upload', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then((response) => {
+                            console.log('Video terkirim');
+                        });
+
+                        chunks = [];
+                    };
+
+                    mediaRecorder.start();
+                    startRecordButton.disabled = true;
+                    stopRecordButton.disabled = false;
+                    setTimeout(() => {
+                        mediaRecorder.stop();
+                        startRecordButton.disabled = false;
+                        stopRecordButton.disabled = true;
+                    }, 10000); // Rekam selama 10 detik
+                })
+                .catch((error) => {
+                    console.error('Gagal mendapatkan akses kamera:', error);
+                });
+        });
+
+        stopRecordButton.addEventListener('click', () => {
+            mediaRecorder.stop();
+            startRecordButton.disabled = false;
+            stopRecordButton.disabled = true;
+        });
+    </script>
+</body>
+</html>
