@@ -16,8 +16,8 @@ class DB:
         query = f"INSERT INTO data (sdata) VALUES ('{dt}')"
         self.cursor.execute(query)
         self.con.commit()
-    def insert(self,nama,nama_lengkap):
-        query = f"INSERT INTO user (nama,nama_lengkap) VALUES ('{nama}','{nama_lengkap}')"
+    def insert(self,nama,nama_lengkap, akurasi):
+        query = f"INSERT INTO user (nama,nama_lengkap) VALUES ('{nama}','{nama_lengkap}',{akurasi})"
         try:
             self.cursor.execute(query)
             self.con.commit()
@@ -26,6 +26,10 @@ class DB:
         except:
             print(f"[INFO]:{query}")
             return False
+    def update_prediksi(self,n, id):
+        query = f"UPDATE user SET akurasi = {n} WHERE id = {id}"
+        self.cursor.execute(query)
+        self.con.commit()
     def getData(self):
         query = "SELECT * FROM data"
         self.cursor.execute(query)
@@ -34,7 +38,7 @@ class DB:
         self.cursor.execute("SELECT id, nama FROM user")
         return self.cursor.fetchall()
     def getByName(self, nama):
-        self.cursor.execute(f"SELECT id, nama FROM user WHERE nama='{nama}'")
+        self.cursor.execute(f"SELECT id, nama, akurasi FROM user WHERE nama='{nama}'")
         return self.toDict(self.cursor.fetchall())
     def getById(self, idd):
         self.cursor.execute(f"SELECT * FROM user WHERE id={idd}")
@@ -44,4 +48,5 @@ class DB:
         for isi in arg:
             dic['id'] = isi[0]
             dic['nama'] = isi[1]
+            dic['akurasi'] = isi[2]
         return dic

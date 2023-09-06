@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .row {
+        padding: 12% 2% 2% 2%;
+        max-width: 400px;
+    }
+
+    .mb-4 {
+        margin-bottom: 0.5rem !important;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <!-- Pills navs -->
+        <ul class="nav nav-pills nav-justified mb-3" id="ex1" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="tab-login" data-mdb-toggle="pill" href="{{ url_for('login') }}" role="tab"
+                    aria-controls="pills-login" aria-selected="true">Masuk</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="tab-register" data-mdb-toggle="pill" href="{{ url_for('mendaftar') }}"
+                    role="tab" aria-controls="pills-register" aria-selected="false">Mendaftar</a>
+            </li>
+        </ul>
+        <!-- Pills navs -->
+
+        <!-- Pills content -->
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="pills-register" role="tabpanel" aria-labelledby="tab-register">
+                <form action="" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+                    <!-- Username input -->
+                    <div class="form-outline mb-4">
+                        {{ form.username(class='form-control') }}
+                        <label class="form-label" for="username">Nama Anggota</label>
+                        {% for error in form.username.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Email input -->
+                    <div class="form-outline mb-4">
+                        {{ form.email(class='form-control') }}
+                        <label class="form-label" for="email">Email</label>
+                        {% for error in form.email.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="form-outline mb-4">
+                        {{ form.password(class='form-control') }}
+                        <label class="form-label" for="password">Password</label>
+                        {% for error in form.password.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Repeat Password input -->
+                    <div class="form-outline mb-4">
+                        {{ form.password2(class='form-control') }}
+                        <label class="form-label" for="password2">Ulangi password</label>
+                        {% for error in form.password2.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Submit button -->
+                    {{ form.submit(class="btn btn-primary btn-block mb-3") }}
+                </form>
+            </div>
+        </div>
+        <!-- Pills content -->
+    </div>
+</div>
+
+{% endblock %}

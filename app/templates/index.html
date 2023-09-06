@@ -1,16 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Ambil Foto</h1>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <input type="text" name="nama"><br>
-        <input type="file" accept="image/*" capture="camera" name="photo">
-        <input type="submit" value="Ambil Foto">
-    </form>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'nav.html' %}
+
+<h1>Anda Berhasil login</h1>
+<h1>Selamat datang {{ current_user.username }}</h1>
+<button id="getLocationButton">Dapatkan Lokasi Saya</button>
+<p id="locationResult"></p>
+
+
+
+<script>
+    $(document).ready(function () {
+        $("#getLocationButton").click(function () {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
+
+                    // Menggunakan Ajax untuk mengirim koordinat ke server Flask
+                    $.ajax({
+                        url: "/get_location",
+                        method: "GET",
+                        data: { lat: latitude, lon: longitude },
+                        success: function (data) {
+                            $("#locationResult").text("Lokasi Anda: " + data.result);
+                        },
+                        error: function (error) {
+                            console.error("Terjadi kesalahan:", error);
+                        }
+                    });
+                });
+            } else {
+                alert("Browser Anda tidak mendukung Geolocation.");
+            }
+        });
+    });
+</script>
+{% endblock %}
