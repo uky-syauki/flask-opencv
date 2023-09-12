@@ -38,7 +38,8 @@ class OPENCV:
         if not os.path.exists(self.path_img_sample):
             os.mkdir(self.path_img_sample)
     def buka_camera(self):
-        self.camera = cv.VideoCapture("http://192.168.183.171:4747/video")
+        # self.camera = cv.VideoCapture("http://192.168.183.171:4747/video")
+        self.camera = cv.VideoCapture(0)
         self.camera_aktif = True
     def tutup_camera(self):
         self.camera_aktif = False
