@@ -1,0 +1,36 @@
+{% extends 'base.html'%}
+
+{% block content %}
+
+<div class="card mb-3">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img id="img_target" src="{{ url_for('static', filename='assets/img/logo-cam.png') }}" class="img-fluid rounded-start" alt="...">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">Card with an image on left</h5>
+          <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+          <button onclick="mulai()" class="btn btn-primary">Mulai</button>
+          <button class="btn btn-primary">Restart</button>
+          <!-- <button href="{{ url_for('tutup_camera') }}" class="btn btn-primary">Periksa</button> -->
+          <a class="btn bg-danger bts" href="{{ url_for('tutup_camera') }}">Periksa</a>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    let img = document.getElementById('img_target');
+    function mulai(){
+        img.src = "{{ url_for('deteksi') }}";
+    }
+
+    function tutup(){
+        img_src = "{{ url_for('static', filename='assets/img/logo-cam.png') }}"
+    }
+
+  </script>
+{% endblock %}

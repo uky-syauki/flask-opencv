@@ -2,40 +2,6 @@
 
 {% block content %}
 
-{% include 'nav.html' %}
+<h1>Index</h1>
 
-<h1>Anda Berhasil login</h1>
-<h1>Selamat datang {{ current_user.username }}</h1>
-<button id="getLocationButton">Dapatkan Lokasi Saya</button>
-<p id="locationResult"></p>
-
-
-
-<script>
-    $(document).ready(function () {
-        $("#getLocationButton").click(function () {
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    var latitude = position.coords.latitude;
-                    var longitude = position.coords.longitude;
-
-                    // Menggunakan Ajax untuk mengirim koordinat ke server Flask
-                    $.ajax({
-                        url: "/get_location",
-                        method: "GET",
-                        data: { lat: latitude, lon: longitude },
-                        success: function (data) {
-                            $("#locationResult").text("Lokasi Anda: " + data.result);
-                        },
-                        error: function (error) {
-                            console.error("Terjadi kesalahan:", error);
-                        }
-                    });
-                });
-            } else {
-                alert("Browser Anda tidak mendukung Geolocation.");
-            }
-        });
-    });
-</script>
 {% endblock %}

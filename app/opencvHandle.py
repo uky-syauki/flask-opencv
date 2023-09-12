@@ -2,12 +2,11 @@ import cv2 as cv
 import numpy as np
 from PIL import Image
 import os
-from app import db
+from app import db, app
 from app.models import User
-from flask import redirect, url_for, request
+from flask import redirect, url_for, request, Response, render_template
 
 # from app.dbHandle import DB
-
 
 class OPENCV:
     def __init__(self, user, appcon):
@@ -17,16 +16,18 @@ class OPENCV:
         self.recognition = cv.face.LBPHFaceRecognizer_create()
         self.path_dataset = f'dataset/'
         self.path_training = f'training/latih.yml'
-        self.path_img_sample = f'sampleimg/{user["nama"]}'
-        self.user = user
+        self.user = User.query.filter_by(username=user).first()
+        self.path_img_sample = f'sampleimg/{self.user.username}'
         self.camera = None
         self.camera_aktif = False
         self.prediksi = 0
         self.allUser = []
         self.setAllUser()
         self.buat_directory_user()
-    def update_prediksi(self,n):
-        
+    def update_prediksi(self, n):
+        self.user.face_prediksi = n
+        db.session.add(self.user)
+        db.session.commit()
     def setAllUser(self):
         semua = User.query.all()
         for isi in semua:
@@ -34,10 +35,10 @@ class OPENCV:
     def buat_directory_user(self):
         if not os.path.exists(self.path_dataset):
             os.mkdir(self.path_dataset)
-        if not os.path.exists(self.path_dataset):
+        if not os.path.exists(self.path_img_sample):
             os.mkdir(self.path_img_sample)
     def buka_camera(self):
-        self.camera = cv.VideoCapture("http://192.168.90.159:4747/video")
+        self.camera = cv.VideoCapture("http://192.168.183.171:4747/video")
         self.camera_aktif = True
     def tutup_camera(self):
         self.camera_aktif = False
@@ -55,7 +56,7 @@ class OPENCV:
             face = self.face_cascade.detectMultiScale(gray, 1.3, 5)
             for (x, y, w, h) in face:
                 hitung += 1
-                cv.imwrite(f"{self.path_dataset}/{self.user['nama']}.{self.user['id']}.{hitung}.jpg", gray[y:y+h, x:x+w])
+                cv.imwrite(f"{self.path_dataset}/{self.user.username}.{self.user.id}.{hitung}.jpg", gray[y:y+h, x:x+w])
         self.training()
     def get_image_and_label(self,path):
         path_image = [os.path.join(path, f) for f in os.listdir(path)]
@@ -178,7 +179,7 @@ class OPENCV:
             #return id, confidance
     # mengambil gambar dengan vidio
     def generate_frame(self):
-        self.recognition.read(self.path_training)
+        # self.recognition.read(self.path_training)
         self.buka_camera()
         hitung = 0
         while self.camera_aktif:
@@ -196,7 +197,10 @@ class OPENCV:
                             print(hitung)
 
                         if hitung <= 30: 
-                            cv.imwrite(f"{self.path_img_sample}/{self.user['nama']}.{self.user['id']}.{hitung}.jpg", frame)
+                            cv.imwrite(f"{self.path_img_sample}/{self.user.username}.{self.user.id}.{hitung}.jpg", frame)
+                        else:
+                            self.tutup_camera()
+                            self.add_dataset_img()
                 ret, buffer = cv.imencode('.jpg', frame)
                 if not ret:
                     break
@@ -204,7 +208,8 @@ class OPENCV:
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
                 
-    def deteksi_dengan_vidio(self):
+    def deteksi_dengan_vidio(self, f):
+        text = "INI TEXXT dari RESPONSE"
         # pantau = []
         self.app.app_context().push()
         print("[INFO] Mendeteksi image dengan video")
@@ -232,14 +237,17 @@ class OPENCV:
                             id = names[id]
                             confidance = round(100 - confidance)
                             if confidance > 50:
-                                # self.tutup_camera()
                                 self.prediksi = confidance
-                                print(self.prediksi, 'Info')
-                                # return redirect( url_for('index') )
-                            if confidance > 45 and id == self.user['nama']:
+                                # print(self.prediksi, 'Info')
+                                self.update_prediksi(confidance)
+                                self.tutup_camera()
+                                break
+                                # return redirect(url_for('index'))
+                            # print(self.user)
+                            if confidance > 45 and id == self.user.username:
                                 hitung += 1
                                 if hitung <= 30:
-                                    cv.imwrite(f"{self.path_img_sample}/{self.user['nama']}.{self.user['id']}.{hitung}.jpg", frame)
+                                    cv.imwrite(f"{self.path_img_sample}/{self.user.username}.{self.user.id}.{hitung}.jpg", frame)
                         else:
                             id = "tidak kenal"
                             confidance = round(100 - confidance)
@@ -256,7 +264,12 @@ class OPENCV:
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             # print(pantau)        
+        #     if self.prediksi > 0:
+        #         break
+        # f()
+            
 
+     
 
 
 

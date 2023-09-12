@@ -14,16 +14,4 @@ class LoginForm(FlaskForm):
 class DaftarForm(FlaskForm):
     username = StringField('Nama Pengguna', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    password2 = PasswordField('Ulangi Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Daftar')
-
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user is not None:
-            raise ValidationError('Gunakan nama yang lain.')
-    
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user is not None:
-            raise ValidationError("Gunakan Email yang lain.")
